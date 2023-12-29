@@ -1,0 +1,41 @@
+
+services:
+  keycloak-db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloakuser
+      MYSQL_PASSWORD: keycloakpassword
+      MYSQL_ROOT_PASSWORD: keycloakrootpassword
+    volumes:
+      - keycloak_db_data:/var/lib/mysql
+
+  keycloak:
+    image: jboss/keycloak
+    ports:
+      - "8210:8080"
+    environment:
+      DB_VENDOR: mysql
+      DB_ADDR: keycloak-db
+      DB_PORT: 3306
+      DB_DATABASE: keycloak
+      DB_USER: keycloakuser
+      DB_PASSWORD: keycloakpassword
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    depends_on:
+      - keycloak-db
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
+
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+
+volumes:
+  keycloak_db_data:
+  keycloak_data:
